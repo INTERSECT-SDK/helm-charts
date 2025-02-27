@@ -2,7 +2,7 @@ apiVersion: v2
 name: intersect
 description: Unified deployment for INTERSECT core services and test adapters
 type: application
-version: 0.0.2
+version: 0.0.3
 dependencies:
   # message plane
   - alias: intersect-message-broker-1
