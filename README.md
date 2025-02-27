@@ -1,23 +1,34 @@
-# INTERSECT Helm charts
+# Helm Charts
 
-This repo is meant to manage publishment of the common INTERSECT Helm umbrella chart which should be used across ALL INTERSECT deployments.
+This github pages website is used to host Helm charts associated with the [main repo](https://github.com/intersect-sdk/helm-charts/).
 
-This chart currently consists of:
+## Usage
 
-- the message broker (with a common configuration)
-- the data plane
-- iHub
+[Helm](https://helm.sh) must be installed to use the charts.  Please refer to
+Helm's [documentation](https://helm.sh/docs) to get started.
 
-We will publish this chart to both this Gitlab instance and savannah.ornl.gov . Please note that any standalone charts will only be published to their appropriate repository.
+Once Helm has been set up correctly, add the repo as follows:
 
-Once all associated components are open-sourced, this chart may be open-sourced as well.
+  `helm repo add <alias> https://intersect-sdk.github.io/helm-charts`
 
-Note that this repo will NOT automatically kick off any triggers for any deployments themselves, deployments are expected to either be handled manually or utilize a "pull" based system (such as ArgoCD). All it will do is write the umbrella Helm chart.
+If you had already added this repo earlier, run `helm repo update` to retrieve
+the latest versions of the packages.  You can then run `helm search repo <alias>` to see the charts.
 
-## Chart usage
+Available charts:
+- `intersect`
 
-We maintain two charts: `intersect-unstable` and `intersect`:
-- `intersect` is the STABLE version of the umbrella chart - this should correspond to the `main` branches of associated application repositories
-- `intersect-unstable` is meant to be representative of the UNSTABLE version of the umbrella chart - this should correspond to the `next` branch of associated application repositories
+To install a chart:
 
-For example user values you can use, see `examples/example-chart.values.yaml` .
+    helm install <chart-name> <alias>/<chart-name>
+
+To uninstall the chart:
+
+    helm delete <chart-name>
+
+If using an umbrella chart, add these lines to your `dependencies` section (change `version` accordingly):
+
+```yaml
+  - name: intersect
+    repository: https://intersect-sdk.github.io/helm-charts/
+    version: "0.0.1"
+```
