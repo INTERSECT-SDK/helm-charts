@@ -1,0 +1,24 @@
+apiVersion: v1
+entries:
+  intersect:
+  - apiVersion: v2
+    created: "2025-02-27T17:37:55.628960851Z"
+    dependencies:
+    - alias: intersect-message-broker-1
+      condition: intersect-message-broker-1.enabled
+      name: rabbitmq
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    - alias: intersect-storage-1
+      condition: intersect-storage-1.enabled
+      name: minio
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    description: Unified deployment for INTERSECT core services and test adapters
+    digest: ba62bd088912ad40d05e0380ce80058320da52e22c610e3386ceec92573441c2
+    name: intersect
+    type: application
+    urls:
+    - https://github.com/INTERSECT-SDK/helm-charts/releases/download/intersect-0.0.1/intersect-0.0.1.tgz
+    version: 0.0.1
+generated: "2025-02-27T17:37:55.62897064Z"
