@@ -1,0 +1,263 @@
+# The "base" values.yaml used for ALL charts.
+# When constructing charts, overrides files will be merged to generate this file's values.yaml
+# note that there are several YAML anchors in this file - their references should be defined in the overrides file, not here 
+
+###############
+### GLOBALS ###
+###############
+# These values will be used across all subcharts
+# You'd generally only want to define these at runtime
+
+#global:
+  #imagePullSecrets:
+    #- gitlab-auth
+
+###################################
+##### UI/MICROSERVICE SUBCHARTS ###
+###################################
+# Override values from subcharts (defined in each repository)
+# The one exception is the "enabled" property: this is a boolean flag which determines usage of the entire subchart
+# In your dev environment, you will often want to disable specific charts if you're developing the service (or, conversely, the service is irrelevant and running it wastes resources)
+# By default, these will all be enabled.
+
+################################
+### MESSAGE BROKER SUBCHARTS ###
+################################
+# Configurations for brokers
+
+# For latest documentation, see https://github.com/bitnami/charts/blob/711e2f720d92e936b9a67bbdc269d57c33a9dca6/bitnami/rabbitmq/values.yaml
+intersect-message-broker-1:
+  enabled: true
+
+  auth:
+    username: "broker-username"
+    password: "broker-password"
+    erlangCookie: "broker-cookie"
+
+  memoryHighWatermark:
+    enabled: true
+    # "absolute" or "relative"
+    type: "relative"
+    # if "type" = "relative", "0.4" = 40% of RAM
+    # if "type" = "absolute", use i.e. "256Mi"
+    value: 0.4
+
+  # space-delimited list of plugins (the management plugin and the k8s plugin are enabled by default)
+  # some plugins here: https://www.rabbitmq.com/docs/plugins#tier1-plugins
+  #
+  # You can use any plugins listed by running:
+  #     $ rabbitmq-plugins list
+  # ...or rabbitmq will try to install them if they don't already exist 
+  extraPlugins: "rabbitmq_mqtt rabbitmq_stomp"
+
+  loadDefinition:
+    ## TODO: We will want to enable definitions files if we define more complex roles inside the broker application
+    enabled: false
+
+  # The default Bitnami configuration is now fine and doesn't need to be overridden. This adds additional configuration.
+  # Note that mqtt.subscription.ttl MUST be set so that adapters remain connected to brokers, but be aware of the memory issues
+  extraConfiguration: |-
+    default_vhost = /
+    {{- if .Values.resources.limits.storage }}
+    disk_free_limit.absolute = {{ .Values.resources.limits.storage }}
+    {{- else }}
+    disk_free_limit.relative = 0.4
+    {{- end }}
+    {{- if .Values.resources.requests.cpu }}
+    delegate_count = {{ .Values.resources.requests.cpu }}
+    {{- end }}
+    mqtt.subscription_ttl = undefined
+    # set this to the maximum allowed by rabbitmq - https://www.rabbitmq.com/docs/configure#config-items
+    max_message_size = 536870912
+
+  # if enabling this, add back "rabbitmq_auth_backend_ldap" to "extraPlugins"
+  ldap:
+    enabled: false
+
+  podSecurityContext:
+    enabled: true
+
+  containerSecurityContext:
+    enabled: true
+
+  resources:
+    limits: {}
+    requests: {}
+
+  pdb:
+    create: false
+
+  serviceAccount:
+    create: false
+
+  persistence:
+    enabled: false
+
+  # TODO configure the path on this later
+  ingress:
+    enabled: false
+
+  networkPolicy:
+    enabled: false
+
+  # This should be enabled at runtime because developers probably won't have Prometheus configured on their machine.
+  metrics:
+    enabled: false
+    serviceMonitor:
+      enabled: false
+      namespace: "" # determine this at runtime
+      # are these additional labels still necessary?
+      additionalLabels:
+        release: prometheus
+
+    prometheusRule:
+      enabled: false
+      namespace: "" # determine this at runtime
+      rules:
+        - alert: RabbitmqDown
+          expr: rabbitmq_up{service="{{ template "common.names.fullname" . }}"} == 0
+          for: 5m
+          labels:
+            severity: error
+          annotations:
+            summary: Rabbitmq down (instance {{ "{{ $labels.instance }}" }})
+            description: RabbitMQ node down
+        - alert: ClusterDown
+          expr: |
+            sum(rabbitmq_running{service="{{ template "common.names.fullname" . }}"})
+            < {{ .Values.replicaCount }}
+          for: 5m
+          labels:
+            severity: error
+          annotations:
+            summary: Cluster down (instance {{ "{{ $labels.instance }}" }})
+            description: |
+              Less than {{ .Values.replicaCount }} nodes running in RabbitMQ cluster
+              VALUE = {{ "{{ $value }}" }}
+        - alert: ClusterPartition
+          expr: rabbitmq_partitions{service="{{ template "common.names.fullname" . }}"} > 0
+          for: 5m
+          labels:
+            severity: error
+          annotations:
+            summary: Cluster partition (instance {{ "{{ $labels.instance }}" }})
+            description: |
+              Cluster partition
+              VALUE = {{ "{{ $value }}" }}
+        - alert: OutOfMemory
+          expr: |
+            rabbitmq_node_mem_used{service="{{ template "common.names.fullname" . }}"}
+            / rabbitmq_node_mem_limit{service="{{ template "common.names.fullname" . }}"}
+            * 100 > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Out of memory (instance {{ "{{ $labels.instance }}" }})
+            description: |
+             Memory available for RabbmitMQ is low (< 10%)\n  VALUE = {{ "{{ $value }}" }}
+             LABELS: {{ "{{ $labels }}" }}
+        - alert: TooManyConnections
+          expr: rabbitmq_connectionsTotal{service="{{ template "common.names.fullname" . }}"} > 1000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Too many connections (instance {{ "{{ $labels.instance }}" }})
+            description: |
+              RabbitMQ instance has too many connections (> 1000)
+              VALUE = {{ "{{ $value }}" }}\n  LABELS: {{ "{{ $labels }}" }}
+
+  volumePermissions:
+    enabled: false
+    resources:
+      limits: {}
+      requests: {}
+
+############################
+### DATA PLANE SUBCHARTS ###
+############################
+# Configure storage plane here
+
+# for latest documentation, see https://github.com/bitnami/charts/blob/main/bitnami/minio/values.yaml
+intersect-storage-1:
+  enabled: true
+  
+  ## TODO eventually switch this to "distributed"
+  mode: standalone
+  
+  auth:
+    rootUser: "minio-username"
+    rootPassword: "minio-password"
+
+  defaultBuckets: "intersect-storage"
+  
+  tls:
+    enabled: false
+  
+  schedulerName: ""
+  
+  deployment:
+    updateStrategy:
+      # TODO check to see if we want this to be "RollingUpdate" (may be best to switch the mode to "distributed" instead of doing this)
+      type: Recreate
+  
+  # manage MinIO provisioning job, TODO might want to look into this for automatic bucket cleanup policy
+  provisioning:
+    enabled: false
+
+  # !!! Allows for Prometheus instances to collect MinIO metrics
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/minio/v2/metrics/cluster"
+    prometheus.io/port: "9000"
+
+  ingress:
+    enabled: false
+    path: /data/intersect-storage-1
+
+  apiIngress:
+    enabled: false
+    path: /data/intersect-storage-1-api
+
+  networkPolicy:
+    enabled: false
+
+  # TODO consider setting this to "true" eventually
+  persistence:
+    enabled: false
+
+  volumePermissions:
+    enabled: false
+    resources:
+      limits: {}
+      requests: {}
+
+  serviceAccount:
+    create: false
+
+  # This should be enabled at runtime because developers probably won't have Prometheus configured on their machine.
+  metrics:
+    prometheusAuthType: public
+    serviceMonitor:
+      enabled: false
+      namespace: "" # determine this at runtime
+      # TODO is this necessary?
+      labels:
+        release: prometheus
+    prometheusRule:
+      enabled: false
+      namespace: "" # determine this at runtime
+      rules: 
+        - alert: minio cluster nodes offline
+          annotations:
+            summary: "minio cluster nodes offline"
+            description: "minio cluster nodes offline, pod {{`{{`}} $labels.pod {{`}}`}} service {{`{{`}} $labels.job {{`}}`}} offline"
+          for: 10m
+          expr: minio_cluster_nodes_offline_total > 0
+          labels:
+            severity: critical
+            group: PaaS
+
+  gateway:
+    enabled: false
