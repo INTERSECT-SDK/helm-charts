@@ -1,13 +1,7 @@
-# This is an example file you can use for a development environment. 
-# The development environment deliberately does not deploy a monitoring system (too resource intensive) or "useless" stuff i.e. docs.
-# It also doesn't assume that you have ingress configured.
-
-# Things you MUST change:
-# - Make sure that ".anchors.clusterHost" and ".anchors.clusterHttpHost" have IP addresses set to YOUR instance
-
+# This is an example file you can use as a template for a production environment.
+#
 # Things you may want to modify
-# - Any part of the chart can be enabled/disabled as needed. For example: if you're developing a service, you'll probably want to disable it.
-#     Adapters are disabled by default, core services + the dashboard are enabled by default.
+# - Any part of the chart can be enabled/disabled as needed.
 # - Authentication credentials. Any variable leading with a * is defined under .anchors - otherwise it's safe to change.
 # - System resources. This file has sane defaults but you may want to tweak these. Note that RabbitMQ and MinIO have minimum runtime requirements. 
 #     More information: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
