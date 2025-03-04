@@ -30,5 +30,5 @@ If using an umbrella chart, add these lines to your `dependencies` section (chan
 ```yaml
   - name: intersect
     repository: https://intersect-sdk.github.io/helm-charts/
-    version: "0.0.1"
+    version: "0.0.3"
 ```
