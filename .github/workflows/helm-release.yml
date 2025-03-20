@@ -33,6 +33,9 @@ jobs:
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
 
+      - name: Debug helm charts
+        run: ./lint-charts.sh
+
       - name: Run chart-releaser for all applications
         uses: helm/chart-releaser-action@v1.6.0
         env:

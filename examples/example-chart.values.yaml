@@ -1,23 +1,48 @@
-# This is an example file you can use as a template for a production environment.
+# This is an example file you can use as a template for a prototype environment.
 #
 # Things you may want to modify
 # - Any part of the chart can be enabled/disabled as needed.
 # - Authentication credentials. Any variable leading with a * is defined under .anchors - otherwise it's safe to change.
 # - System resources. This file has sane defaults but you may want to tweak these. Note that RabbitMQ and MinIO have minimum runtime requirements. 
 #     More information: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-
+#
+# NOTE: This setup focuses on utilizing a NodePort configuration for ALL Kubernetes Services, but this is not necessarily "production ready".
+# Consider taking some of the approaches below:
+# 1) Have services talk to each other via ClusterIP instead of NodePorts.
+# 2) Do not expose the RabbitMQ message broker externally, only a proxy-http-server instance. Note that this only works if you are deploying all of your microservices on the Kubernetes cluster.
+# 3) You may not want to expose things such as the RabbitMQ management UI or the MINIO console UI externally, and require admins to use "kubectl port-forward" to access these services.
+# 4) Configure an ingress to expose only necessary components (assuming that all necessary components can communicate over HTTP).
 
 
 ######################
 #### ANCHORS #########
 ######################
 # anchors are just a useful feature so you don't repeat yourself in the config file
+# the anchors are meant to be comprehensive for application-specific configuration, but will not touch on a Kubernetes-specific configuration.
+# this is meant to represent a NodePort setup
 
 .anchors:
+  proxy:
+    # this should currently be represented as "organization.facility.system", with the "." character representing namespace separations
+    systemName: &proxy-systemName "org.fac.system."
+    log_level: &proxy-loglevel "info"  # set to "debug" if you want extremely verbose output, including of the messages themselves
+
+    server:
+      serverUsername: &proxy-serverUsername "proxy_username"
+      serverPassword: &proxy-serverPassword "proxy_password"
+      serverContainerPort: &proxy-serverPort 9071 # you do not have to set this value, it will be 8080 if you don't. This is mostly to avoid conflicts with other applications.
+      nodePort: &proxy-serverNodePort 30030
+
+    client:
+      otherProxyUrl: &proxy-otherUrl "https://example.com/http-server-proxy" # base URL of the proxy service, up to but excluding the path
+      otherProxyUsername: &proxy-otherUsername "proxy_not_on_this_cluster_username"
+      otherProxyPassword: &proxy-otherPassword "proxy_not_on_this_cluster_password"
+
   # message plane
   messageBroker:
+    kubeName: &messageBroker-kubeName "intersect-message-broker" # this is used both for inter-service communication, and to access the broker secret name
     username: &messageBroker-username "control"
-    # note that the password secret name won't change per deployment, just define the password directly in the broker configuration once
+    secretKey: &messageBroker-secretKey "rabbitmq-password" # this should not change unless you use a custom secret for the broker password
     amqpNodePort: &messageBroker-amqpNodePort 30010
     mqttNodePort: &messageBroker-mqttNodePort 30011
     #stompNodePort: &messageBroker-stompNodePort 30012
@@ -37,6 +62,48 @@
 ##### UI/MICROSERVICE SUBCHARTS ###
 ###################################
 
+#######################
+### PROXY SUBCHARTS ###
+#######################
+proxy-http-server:
+  # set this to "true" if you want to use the application. The rest of this configuration assumes you set this to "true"
+  enabled: false
+  service:
+    type: NodePort
+    port: *proxy-serverPort
+    nodePort: *proxy-serverNodePort
+  # you do not have to set this value, it will be 8080 if you don't.
+  containerPort: *proxy-serverPort
+  app:
+    topic_prefix: *proxy-systemName
+    log_level: *proxy-loglevel
+    broker:
+      username: *messageBroker-username
+      password:
+        isSecret: true
+        secretName: *messageBroker-kubeName
+        secretKey: *messageBroker-secretKey
+    username: *proxy-serverUsername
+    password: *proxy-serverPassword
+
+
+proxy-http-client:
+  # set this to "true" if you want to use the application. The rest of this configuration assumes you set this to "true"
+  enabled: false
+  app:
+    topic_prefix: *proxy-systemName
+    log_level: *proxy-loglevel
+    broker:
+      username: *messageBroker-username
+      password:
+        isSecret: true
+        secretName: *messageBroker-kubeName
+        secretKey: *messageBroker-secretKey
+    other_proxy:
+      url: *proxy-otherUrl
+      username: *proxy-otherUsername
+      password: *proxy-otherPassword
+
 ################################
 ### MESSAGE BROKER SUBCHARTS ###
 ################################
@@ -44,6 +111,9 @@
 # you can tweak authentication + hardware resources if you want, don't disable these
 
 intersect-message-broker-1:
+  # note that while using "fullnameOverride" is generally fine for single deployments per-cluster, it can cause problems if you are deploying multiple instances of intersect-core on one cluster
+  # consider using "nameOverride" or manually setting values modified by this anchor if you want to change this
+  fullnameOverride: *messageBroker-kubeName
   auth:
     username: *messageBroker-username
     # you may find it easier to create your own Secret instead of using the Secret generated by the Bitnami chart

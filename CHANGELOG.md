@@ -2,6 +2,13 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.4 - 2025-03-20
+
+### Added
+
+- Added broker-http-proxy charts and updated example configuration (Lance Drane)
+- Added chart verification script (Lance Drane)
+
 ## 0.0.3 - 2025-02-27
 
 ### Fixed

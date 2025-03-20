@@ -20,6 +20,20 @@
 # In your dev environment, you will often want to disable specific charts if you're developing the service (or, conversely, the service is irrelevant and running it wastes resources)
 # By default, these will all be enabled.
 
+#######################
+### PROXY SUBCHARTS ###
+#######################
+
+proxy-helm-server:
+  enabled: false
+  broker:
+    port: 5672
+
+proxy-helm-client:
+  enabled: false
+  broker:
+    port: 5672
+
 ################################
 ### MESSAGE BROKER SUBCHARTS ###
 ################################
