@@ -2,6 +2,34 @@ apiVersion: v1
 entries:
   intersect:
   - apiVersion: v2
+    created: "2025-03-20T21:36:45.422898618Z"
+    dependencies:
+    - condition: proxy-http-client.enabled
+      name: proxy-http-client
+      repository: https://intersect-sdk.github.io/broker-http-proxy/
+      version: 0.1.1
+    - condition: proxy-http-server.enabled
+      name: proxy-http-server
+      repository: https://intersect-sdk.github.io/broker-http-proxy/
+      version: 0.1.1
+    - alias: intersect-message-broker-1
+      condition: intersect-message-broker-1.enabled
+      name: rabbitmq
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    - alias: intersect-storage-1
+      condition: intersect-storage-1.enabled
+      name: minio
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    description: Unified deployment for INTERSECT core services and test adapters
+    digest: 51f06975aacd855183989d92cad57e24838de6f65ea15ec70ce5a5dbd5054eba
+    name: intersect
+    type: application
+    urls:
+    - https://github.com/INTERSECT-SDK/helm-charts/releases/download/intersect-0.0.4/intersect-0.0.4.tgz
+    version: 0.0.4
+  - apiVersion: v2
     created: "2025-02-27T22:42:18.485900925Z"
     dependencies:
     - alias: intersect-message-broker-1
@@ -61,4 +89,4 @@ entries:
     urls:
     - https://github.com/INTERSECT-SDK/helm-charts/releases/download/intersect-0.0.1/intersect-0.0.1.tgz
     version: 0.0.1
-generated: "2025-02-27T22:42:18.485920692Z"
+generated: "2025-03-20T21:36:45.422913957Z"
