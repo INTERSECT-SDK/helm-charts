@@ -25,17 +25,18 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Setup yq
-        uses: chrisdickinson/setup-yq@latest
+        uses: mikefarah/yq@master
 
       - name: Install Helm
         uses: azure/setup-helm@v4
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+      # Bitnami repo has a special URL, all others should be able to be added dynamically
       - name: Add Helm repo dependencies
         run: |
-          yq --indent 0 '.dependencies | map(["helm", "repo", "add", .name, .repository] | join(" ")) | .[]' "charts/intersect-core/Chart.yaml" | sh --        
-          helm dependency update charts/intersect-core
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          yq --indent 0 '.dependencies | map(["helm", "repo", "add", .name, .repository] | join(" ")) | .[]' "charts/intersect-core/Chart.yaml" | grep -v 'bitnami' | sh --
 
       - name: Debug helm charts
         run: ./lint-charts.sh
