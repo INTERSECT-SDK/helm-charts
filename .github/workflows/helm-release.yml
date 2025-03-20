@@ -30,8 +30,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Add Helm repo dependencies
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
+        run: helm dependency update charts/intersect-core
 
       - name: Debug helm charts
         run: ./lint-charts.sh
