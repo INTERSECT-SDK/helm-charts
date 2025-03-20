@@ -6,8 +6,8 @@ This format tries to follow the [Common Changelog](https://common-changelog.org/
 
 ### Added
 
-- Added broker-http-proxy charts and updated example configuration (Lance Drane)
-- Added chart verification script (Lance Drane)
+- Added broker-http-proxy charts and updated example configuration ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/fcdc2d468746d46c3923c9f96382fabe31787685)) (Lance Drane)
+- Added chart verification script ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/fcdc2d468746d46c3923c9f96382fabe31787685), [commit](https://github.com/INTERSECT-SDK/helm-charts/commit/379513ae2d33b60ca71a789aede295e7c8c55566)) (Lance Drane)
 
 ## 0.0.3 - 2025-02-27
 
