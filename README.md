@@ -4,8 +4,9 @@ This repo is meant to manage publishment of the common INTERSECT Helm umbrella c
 
 This chart currently consists of:
 
-- the message broker (with a common configuration)
-- the data plane
+- the message broker (with a common configuration - currently, just RabbitMQ)
+- the data plane (currently, just MINIO)
+- [broker-http-proxy](https://github.com/INTERSECT-SDK/broker-http-proxy/)
 
 Future applications we will include in this chart will be:
 
