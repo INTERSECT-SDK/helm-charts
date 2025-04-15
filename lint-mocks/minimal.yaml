@@ -1,0 +1,9 @@
+# WARNING: this example is mostly meant for testing, to verify the absolute minimum values you'll need to set beyond the defaults.
+# However, there are other values that you should realistically set yourself.
+# Use one of the other examples instead.
+intersect-message-broker-1:
+  resources:
+    requests:
+      memory: "2Gi"
+    limits:
+      memory: "4Gi"

@@ -24,12 +24,12 @@
 ### PROXY SUBCHARTS ###
 #######################
 
-proxy-helm-server:
+proxy-http-server:
   enabled: false
   broker:
     port: 5672
 
-proxy-helm-client:
+proxy-http-client:
   enabled: false
   broker:
     port: 5672

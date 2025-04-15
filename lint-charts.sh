@@ -14,7 +14,7 @@ done
 
 rc=0
 
-for file in examples/*.yaml; do
+for file in examples/*.yaml lint-mocks/*.yaml; do
   echo "------- VERIFYING $file --------"
 
   helm template "${CHARTS_DIR}" -f "$file" > /dev/null || {

@@ -2,7 +2,7 @@ apiVersion: v2
 name: intersect
 description: Unified deployment for INTERSECT core services and test adapters
 type: application
-version: 0.0.4
+version: 0.0.5
 dependencies:
   # proxy services - these will be disabled by default
   - name: proxy-http-client
