@@ -2,6 +2,12 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.5 - 2025-04-15
+
+### Fixed
+
+- Fixed incorrect proxy chart value configuration. Users will no longer have to explicitly disable the proxy chart themselves. ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/9f39e56deb3f0e66701473081bfed26f7ed559b2)) (Lance Drane)
+
 ## 0.0.4 - 2025-03-20
 
 ### Added
