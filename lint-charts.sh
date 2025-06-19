@@ -1,13 +1,15 @@
 #!/bin/sh
 
-cd "$(dirname "$0")" || exit 2
+set -e
+
+cd "$(dirname "$0")"
 
 CHARTS_DIR="charts/intersect-core"
 
 # make sure helm dependencies are up to date
 for stat in $(helm dependency list "$CHARTS_DIR" | tail -n +2 | awk '{print $4}'); do 
   if [ "$stat" != "ok" ]; then
-    helm dependency update "$CHARTS_DIR" || exit 1
+    helm dependency update "$CHARTS_DIR"
     break
   fi
 done
