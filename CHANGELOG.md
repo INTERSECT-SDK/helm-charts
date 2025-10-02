@@ -4,7 +4,10 @@ This format tries to follow the [Common Changelog](https://common-changelog.org/
 
 ## 0.0.6 - 2025-10-XX
 
+### Added
+
 - Added KeyCloak charts and updated example configuration. (TBD...)
+- Updated broker-http-proxy charts to `0.1.2` (adds MQTT support)
 
 ## 0.0.5 - 2025-04-15
 
@@ -34,4 +37,5 @@ This format tries to follow the [Common Changelog](https://common-changelog.org/
 **NOTE**: This chart release contains a bug in the default configuration, and should not be used. Use version 0.0.3.
 
 ### Added
+
 - simple Helm chart with just RabbitMQ and MINIO as options (Lance Drane)

@@ -2,15 +2,15 @@ apiVersion: v2
 name: intersect
 description: Unified deployment for INTERSECT core services and test adapters
 type: application
-version: 0.0.5
+version: 0.0.6
 dependencies:
   # proxy services - these will be disabled by default
   - name: proxy-http-client
-    version: 0.1.1
+    version: 0.1.2
     repository: "https://intersect-sdk.github.io/broker-http-proxy/"
     condition: proxy-http-client.enabled
   - name: proxy-http-server
-    version: 0.1.1
+    version: 0.1.2
     repository: "https://intersect-sdk.github.io/broker-http-proxy/"
     condition: proxy-http-server.enabled
 
