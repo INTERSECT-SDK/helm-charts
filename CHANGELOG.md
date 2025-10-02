@@ -2,6 +2,10 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.6 - 2025-10-XX
+
+- Added KeyCloak charts and updated example configuration. (TBD...)
+
 ## 0.0.5 - 2025-04-15
 
 ### Fixed

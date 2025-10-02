@@ -275,3 +275,85 @@ intersect-storage-1:
 
   gateway:
     enabled: false
+
+####################################################
+### IDENTITY PROVIDER / AUTHENTICATION SUBCHARTS ###
+####################################################
+# Configure identity provider
+
+# for latest documentation, see https://github.com/bitnami/charts/blob/main/bitnami/minio/values.yaml
+intersect-authentication-1:
+  enabled: true
+  
+  auth:
+    adminUser: "intersect-auth-user"
+    adminPassword: "intersect-auth-password"
+
+  production: false
+
+  proxyHeaders: ""
+
+  # Need to enable unless running via Ingress, such as NodePort  
+  tls:
+    enabled: false
+  
+  adminRealm: "master"
+  
+  httpEnabled: false
+
+  httpRelativePath: "/"
+
+  # @param logging.level Allowed values as documented: FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL, OFF
+  logging:
+    output: default
+    level: WARN
+
+  # @param existingConfigmap Name of existing ConfigMap with Keycloak configuration
+  existingConfigmap: ""
+
+  extraStartupArgs: ""
+
+  initdbScripts: {}
+
+  deployment:
+    updateStrategy:
+      type: RollingUpdate
+
+  ingress:
+    enabled: false
+    path: /auth/intersect-authentication-1
+
+  networkPolicy:
+    enabled: false
+
+  # TODO consider setting this to "true" eventually
+  persistence:
+    enabled: false
+
+  volumePermissions:
+    enabled: false
+    resources:
+      limits: {}
+      requests: {}
+
+  serviceAccount:
+    create: false
+
+  # This should be enabled at runtime because developers probably won't have Prometheus configured on their machine.
+  metrics:
+    enabled: false
+
+  postgresql:
+    enabled: true
+    image:
+      repository: bitnamilegacy/postgresql
+    primary:
+      persistence:
+        enabled: false
+    nameOverride: "intersect-authentication-1-postgres"
+    auth:
+      username: bn_keycloak
+      password: ""
+      database: bitnami_keycloak
+    architecture: standalone
+

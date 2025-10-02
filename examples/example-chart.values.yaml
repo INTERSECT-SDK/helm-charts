@@ -56,7 +56,13 @@
     username: &minio-username "data"
     password: &minio-password "data_password"
     nodePort: &minio-nodePort 30020
-    consoleNodePort: &minio-consoleNodePort 30021    
+    consoleNodePort: &minio-consoleNodePort 30021
+  
+  # identity provider
+  keycloak:
+    username: &keycloak-username "keycloak_user"
+    password: &keycloak-password "keycloak_password"
+    nodePort: &keycloak-nodePort 30030
 
 ###################################
 ##### UI/MICROSERVICE SUBCHARTS ###
@@ -175,3 +181,19 @@ intersect-storage-1:
       # memory: "128Mi"
       # cpu: "16"
       ephemeral-storage: "4Gi"
+
+####################################################
+### IDENTITY PROVIDER / AUTHENTICATION SUBCHARTS ###
+####################################################
+# Configure identity provider
+
+intersect-authentication-1:
+  auth:
+    adminUser: *keycloak-username
+    adminPassword: *keycloak-password
+
+  # this example will use a NodePort service
+  service:
+    type: NodePort
+    nodePorts:    
+      http: *keycloak-nodePort
