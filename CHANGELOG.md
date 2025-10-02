@@ -2,12 +2,12 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
-## 0.0.6 - 2025-10-XX
+## 0.0.6 - 2025-10-02
 
 ### Added
 
-- Added KeyCloak charts and updated example configuration. (TBD...)
-- Updated broker-http-proxy charts to `0.1.2` (adds MQTT support)
+- Added KeyCloak charts and updated example configuration. ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/0c1c6f344ed33714b64566e2e28f0fd266e06393)) (Marshall McDonnell)
+- Updated broker-http-proxy charts to `0.1.2` , adding MQTT support ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/3eb97f4d652b9f9e386d9de745f014bfcc834109)) (Lance Drane)
 
 ## 0.0.5 - 2025-04-15
 
