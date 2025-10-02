@@ -27,3 +27,10 @@ dependencies:
     name: minio
     version: "14.x.x"
     repository: "oci://registry-1.docker.io/bitnamicharts"
+
+  # identity provider / authentication
+  - alias: intersect-authentication-1
+    condition: intersect-authentication-1.enabled
+    name: keycloak
+    version: "25.x.x"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
