@@ -170,8 +170,8 @@ intersect-storage-1:
   service:
     type: NodePort
     nodePorts:    
-      nodePort: *minio-nodePort
-      consoleNodePort: *minio-consoleNodePort
+      api: *minio-nodePort
+      console: *minio-consoleNodePort
   resources:
     requests:
       # memory: "64Mi"
