@@ -2,6 +2,16 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.7 - 2026-03-04
+
+### Changed
+
+- updated broker-http-proxy charts to `0.1.3`, which allows for the password for the server (in both server and client) to be set via a secret (Lance Drane)
+
+### Fixed
+
+- fixed example MINIO values ([commit](https://github.com/INTERSECT-SDK/helm-charts/commit/6b704f43b7bb4520f411ae3c353659ae44c3ea0d)) (Marshall McDonnell)
+
 ## 0.0.6 - 2025-10-02
 
 ### Added

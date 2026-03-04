@@ -29,14 +29,16 @@
 
     server:
       serverUsername: &proxy-serverUsername "proxy_username"
-      serverPassword: &proxy-serverPassword "proxy_password"
+      serverPasswordSecretName: &proxy-serverPassword-secretName "proxy-password-secret-name"
+      serverPasswordSecretKey: &proxy-serverPassword-secretKey "proxy-password-secret-key"
       serverContainerPort: &proxy-serverPort 9071 # you do not have to set this value, it will be 8080 if you don't. This is mostly to avoid conflicts with other applications.
       nodePort: &proxy-serverNodePort 30030
 
     client:
       otherProxyUrl: &proxy-otherUrl "https://example.com/http-server-proxy" # base URL of the proxy service, up to but excluding the path
       otherProxyUsername: &proxy-otherUsername "proxy_not_on_this_cluster_username"
-      otherProxyPassword: &proxy-otherPassword "proxy_not_on_this_cluster_password"
+      otherProxyPasswordSecretName: &proxy-otherPassword-secretName "other-proxy-secret-name"
+      otherProxyPasswordSecretKey: &proxy-otherPassword-secretKey "other-proxy-secret-key"
 
   # message plane
   messageBroker:
@@ -90,7 +92,12 @@ proxy-http-server:
         secretName: *messageBroker-kubeName
         secretKey: *messageBroker-secretKey
     username: *proxy-serverUsername
-    password: *proxy-serverPassword
+    password:
+      isSecret: true
+      # if "isSecret = false", then set the "hardcoded" string and do not set secretName or secretKey
+      hardcoded: ""
+      secretName: *proxy-serverPassword-secretName
+      secretKey: *proxy-serverPassword-secretKey
 
 
 proxy-http-client:
@@ -108,7 +115,12 @@ proxy-http-client:
     other_proxy:
       url: *proxy-otherUrl
       username: *proxy-otherUsername
-      password: *proxy-otherPassword
+      password:
+        isSecret: true
+        # if "isSecret = false", then set the "hardcoded" string and do not set secretName or secretKey
+        hardcoded: ""
+        secretName: *proxy-otherPassword-secretName
+        secretKey: *proxy-otherPassword-secretKey
 
 ################################
 ### MESSAGE BROKER SUBCHARTS ###
