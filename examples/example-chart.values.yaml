@@ -22,6 +22,7 @@
 # this is meant to represent a NodePort setup
 
 .anchors:
+
   proxy:
     # this should currently be represented as "organization.facility.system", with the "." character representing namespace separations
     systemName: &proxy-systemName "org.fac.system."
@@ -45,6 +46,8 @@
     kubeName: &messageBroker-kubeName "intersect-message-broker" # this is used both for inter-service communication, and to access the broker secret name
     username: &messageBroker-username "control"
     secretKey: &messageBroker-secretKey "rabbitmq-password" # this should not change unless you use a custom secret for the broker password
+    #password: &messageBroker-password "ZTQ0YjljYTk0MTBj" # this is if you use a hard-coded password
+    internalHost: &messageBroker-internalHost "release-intersect-message-broker-1" # the "release" comes from helm upgrade [RELEASE] value and "intersect-message-broker-1" comes from the chart name. This is the host that other applications in the cluster should use to talk to the message broker.
     amqpNodePort: &messageBroker-amqpNodePort 30010
     mqttNodePort: &messageBroker-mqttNodePort 30011
     #stompNodePort: &messageBroker-stompNodePort 30012
@@ -66,9 +69,46 @@
     password: &keycloak-password "keycloak_password"
     nodePort: &keycloak-nodePort 30030
 
+  campaignOrchestrator:
+    apiKey: &campaignOrchestrator-apiKey "01234567890123456789012345678901"
+    apiKeySecretName: &campaignOrchestrator-apiKey-secretName "campaign-orchestrator-api-key"
+    apiKeySecretKey: &campaignOrchestrator-apiKey-secretKey "api-key"
+
+
 ###################################
 ##### UI/MICROSERVICE SUBCHARTS ###
 ###################################
+
+campaign-orchestrator:
+  # set this to "true" when you want the campaign orchestrator included in the umbrella release
+  enabled: true
+  app:
+    apiKey:
+      # Option 1: switch to secret-backed credentials
+      isSecret: true
+      secretName: *campaignOrchestrator-apiKey-secretName
+      secretKey: *campaignOrchestrator-apiKey-secretKey
+
+      # Option 2: use a hardcoded key for simple local installs
+      #isSecret: false
+      #hardcoded: *campaignOrchestrator-apiKey
+
+  broker:
+    host: *messageBroker-internalHost
+    protocol: "amqp0.9.1"
+    username: *messageBroker-username
+    password:
+        # Option 1: switch to secret-backed credentials
+      isSecret: true
+      secretName: *messageBroker-kubeName
+      secretKey: *messageBroker-secretKey
+
+      # Option 2: use the broker password from the umbrella chart
+      #isSecret: false
+      #hardcoded: *messageBroker-password
+
+  campaignRepository:
+    backend: memory
 
 #######################
 ### PROXY SUBCHARTS ###
@@ -86,6 +126,7 @@ proxy-http-server:
     topic_prefix: *proxy-systemName
     log_level: *proxy-loglevel
     broker:
+      host: *messageBroker-internalHost
       username: *messageBroker-username
       password:
         isSecret: true
@@ -107,6 +148,7 @@ proxy-http-client:
     topic_prefix: *proxy-systemName
     log_level: *proxy-loglevel
     broker:
+      host: *messageBroker-internalHost
       username: *messageBroker-username
       password:
         isSecret: true

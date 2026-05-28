@@ -2,6 +2,13 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.8 - 2026-05-28
+
+### Added
+
+- added the campaign-orchestrator sub-chart and enabled it by default using the shared broker credentials
+- bumped the umbrella chart version to `0.0.8`
+
 ## 0.0.7 - 2026-03-04
 
 ### Changed

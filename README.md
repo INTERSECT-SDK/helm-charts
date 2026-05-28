@@ -7,6 +7,7 @@ This chart currently consists of:
 - the message broker (with a common configuration - currently, just RabbitMQ)
 - the data plane (currently, just MINIO)
 - [broker-http-proxy](https://github.com/INTERSECT-SDK/broker-http-proxy/)
+- [campaign-orchestrator](https://github.com/INTERSECT-SDK/campaign-orchestrator/)
 - identity management / authentication ([keycloak](https://www.keycloak.org/))
 
 Future applications we will include in this chart will be:
