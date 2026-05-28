@@ -1,6 +1,16 @@
 # WARNING: this example is mostly meant for testing, to verify the absolute minimum values you'll need to set beyond the defaults.
 # However, there are other values that you should realistically set yourself.
 # Use one of the other examples instead.
+campaign-orchestrator:
+  app:
+    apiKey:
+      isSecret: false
+      hardcoded: "01234567890123456789012345678901"
+  broker:
+    password:
+      isSecret: false
+      hardcoded: "broker-password"
+
 intersect-message-broker-1:
   resources:
     requests:
