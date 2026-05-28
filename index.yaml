@@ -2,6 +2,43 @@ apiVersion: v1
 entries:
   intersect:
   - apiVersion: v2
+    created: "2026-05-28T15:16:38.915157963Z"
+    dependencies:
+    - condition: proxy-http-client.enabled
+      name: proxy-http-client
+      repository: https://intersect-sdk.github.io/broker-http-proxy/
+      version: 0.1.3
+    - condition: proxy-http-server.enabled
+      name: proxy-http-server
+      repository: https://intersect-sdk.github.io/broker-http-proxy/
+      version: 0.1.3
+    - condition: campaign-orchestrator.enabled
+      name: campaign-orchestrator
+      repository: https://intersect-sdk.github.io/campaign-orchestrator/
+      version: 0.1.1
+    - alias: intersect-message-broker-1
+      condition: intersect-message-broker-1.enabled
+      name: rabbitmq
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    - alias: intersect-storage-1
+      condition: intersect-storage-1.enabled
+      name: minio
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 14.x.x
+    - alias: intersect-authentication-1
+      condition: intersect-authentication-1.enabled
+      name: keycloak
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 25.x.x
+    description: Unified deployment for INTERSECT core services and test adapters
+    digest: 161d37f761956b258a8a84e79d4f06fd97a073caf5f5df490080e1b3aacc8be4
+    name: intersect
+    type: application
+    urls:
+    - https://github.com/INTERSECT-SDK/helm-charts/releases/download/intersect-0.0.8/intersect-0.0.8.tgz
+    version: 0.0.8
+  - apiVersion: v2
     created: "2026-03-04T16:05:14.072440658Z"
     dependencies:
     - condition: proxy-http-client.enabled
@@ -183,4 +220,4 @@ entries:
     urls:
     - https://github.com/INTERSECT-SDK/helm-charts/releases/download/intersect-0.0.1/intersect-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-04T16:05:14.072494228Z"
+generated: "2026-05-28T15:16:38.915186616Z"
