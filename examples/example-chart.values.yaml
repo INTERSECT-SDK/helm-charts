@@ -98,7 +98,7 @@ campaign-orchestrator:
     protocol: "amqp0.9.1"
     username: *messageBroker-username
     password:
-        # Option 1: switch to secret-backed credentials
+      # Option 1: switch to secret-backed credentials
       isSecret: true
       secretName: *messageBroker-kubeName
       secretKey: *messageBroker-secretKey
