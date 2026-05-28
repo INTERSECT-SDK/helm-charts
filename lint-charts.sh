@@ -3,34 +3,38 @@
 set -e
 
 cd "$(dirname "$0")"
-
-CHARTS_DIR="charts/intersect-core"
-
-# make sure helm dependencies are up to date
-for stat in $(helm dependency list "$CHARTS_DIR" | tail -n +2 | awk '{print $4}'); do 
-  if [ "$stat" != "ok" ]; then
-    helm dependency update "$CHARTS_DIR"
-    break
-  fi
-done
-
 rc=0
 
-for file in examples/*.yaml lint-mocks/*.yaml; do
-  echo "------- VERIFYING $file --------"
+for chart_dir in charts/*/Chart.yaml; do
+	chart_dir="$(dirname "$chart_dir")"
+	chart_name="$(basename "$chart_dir")"
 
-  helm template "${CHARTS_DIR}" -f "$file" > /dev/null || {
-    rc=1
-    echo "--------- TEMPLATE VERIFICATION FAILED: $file --------"
-  }
+	printf '%s\n' "========== VERIFYING CHART $chart_name ============"
 
-  helm lint "${CHARTS_DIR}" -f "$file" || {
-    rc=1
-    echo "--------- LINT VERIFICATION FAILED: $file --------"
-  }
+	# make sure helm dependencies are up to date
+	for stat in $(helm dependency list "$chart_dir" | tail -n +2 | awk '{print $4}'); do
+		if [ "$stat" != "ok" ]; then
+			helm dependency update "$chart_dir"
+			break
+		fi
+	done
 
-  echo "------- FINISHED VERIFYING $file --------"
-  echo
+	for file in examples/"${chart_name}"/*.yaml lint-mocks/"${chart_name}"/*.yaml; do
+		echo "------- VERIFYING $file --------"
+
+		helm template "${chart_dir}" -f "$file" >/dev/null || {
+			rc=1
+			echo "--------- TEMPLATE VERIFICATION FAILED: $file --------"
+		}
+
+		helm lint "${chart_dir}" -f "$file" || {
+			rc=1
+			echo "--------- LINT VERIFICATION FAILED: $file --------"
+		}
+
+		echo "------- FINISHED VERIFYING $file --------"
+		echo
+	done
 done
 
 exit $rc
