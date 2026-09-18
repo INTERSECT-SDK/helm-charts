@@ -1,0 +1,59 @@
+# WARNING: this example is mostly meant for testing, to verify the absolute minimum values you'll need
+# to set beyond the defaults when the registry service is enabled.
+# However, there are other values that you should realistically set yourself.
+# Use examples/intersect-core/example-chart.values.yaml instead.
+campaign-orchestrator:
+  app:
+    apiKey:
+      isSecret: false
+      hardcoded: "01234567890123456789012345678901"
+  broker:
+    password:
+      isSecret: false
+      hardcoded: "broker-password"
+
+registry-service:
+  enabled: true
+  app:
+    secretName:
+      isSecret: false
+      hardcoded: "0123456789abcdef"
+  auth:
+    keycloak:
+      realmBaseUrl: "http://localhost:30030/realms/intersect/protocol/openid-connect"
+      clientId: "registry-service"
+      clientSecret:
+        isSecret: false
+        hardcoded: "registry-client-secret"
+    session:
+      secret:
+        isSecret: false
+        hardcoded: "01020304050607080910111213141516"
+  broker:
+    # placeholder values - the real broker host depends on the release name and on whether you set
+    # "fullnameOverride" on intersect-message-broker-1. See the example values file.
+    host: "intersect-message-broker"
+    managementUri: "http://intersect-message-broker:15672/"
+    root:
+      password:
+        isSecret: false
+        hardcoded: "broker-password"
+    client:
+      password:
+        isSecret: false
+        hardcoded: "lackey-password"
+      apiKey:
+        isSecret: false
+        hardcoded: "registry-client-api-key"
+  postgresql:
+    auth:
+      password:
+        isSecret: false
+        hardcoded: "registry-password"
+
+intersect-message-broker-1:
+  resources:
+    requests:
+      memory: "2Gi"
+    limits:
+      memory: "4Gi"

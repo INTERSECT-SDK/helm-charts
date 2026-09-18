@@ -8,11 +8,11 @@ This chart currently consists of:
 - the data plane (currently, just MINIO)
 - [broker-http-proxy](https://github.com/INTERSECT-SDK/broker-http-proxy/)
 - [campaign-orchestrator](https://github.com/INTERSECT-SDK/campaign-orchestrator/)
+- [registry-service](https://github.com/INTERSECT-SDK/registry-service/) (disabled by default)
 - identity management / authentication ([keycloak](https://www.keycloak.org/))
 
 Future applications we will include in this chart will be:
 
-- [Registry service](https://github.com/INTERSECT-SDK/registry-service)
 - iHub
 
 ## Chart usage

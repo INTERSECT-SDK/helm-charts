@@ -23,6 +23,42 @@
 campaign-orchestrator:
   enabled: true
 
+# The registry service requires configuration which has no sensible default (an OIDC realm, a
+# reachable message broker and several credentials), so it is disabled by default. See
+# examples/intersect-core/example-chart.values.yaml for a complete configuration.
+registry-service:
+  enabled: false
+
+  app:
+    # keep this in sync with the "systemName" used by your other INTERSECT services
+    systemName: "intersect-registry-system"
+    # run outstanding Alembic migrations on startup - only disable this if a DBA applies them out of band
+    runMigrations: true
+
+  auth:
+    # "rudimentary" uses hardcoded in-memory users and is for local development ONLY
+    implementation: keycloak
+
+  # NOTE: the registry service does NOT deploy a broker, it connects to the one deployed by this
+  # umbrella chart. Both "host" and "managementUri" must be set at runtime, they depend on the
+  # Helm release name.
+  broker:
+    port: 5672
+    protocol: "amqp0.9.1"
+    application: rabbitmq
+
+  ingress:
+    enabled: false
+
+  # the registry service deploys its own PostgreSQL StatefulSet
+  postgresql:
+    enabled: true
+    image:
+      repository: bitnamilegacy/postgresql
+    # TODO consider setting this to "true" eventually
+    persistence:
+      enabled: false
+
 #######################
 ### PROXY SUBCHARTS ###
 #######################
