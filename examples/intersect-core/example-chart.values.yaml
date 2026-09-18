@@ -47,7 +47,7 @@
     username: &messageBroker-username "control"
     secretKey: &messageBroker-secretKey "rabbitmq-password" # this should not change unless you use a custom secret for the broker password
     #password: &messageBroker-password "ZTQ0YjljYTk0MTBj" # this is if you use a hard-coded password
-    internalHost: &messageBroker-internalHost "release-intersect-message-broker-1" # the "release" comes from helm upgrade [RELEASE] value and "intersect-message-broker-1" comes from the chart name. This is the host that other applications in the cluster should use to talk to the message broker.
+    internalHost: &messageBroker-internalHost "intersect-message-broker" # this is the host that other applications in the cluster should use to talk to the message broker. It matches "kubeName" above, because this example sets "fullnameOverride" on the broker. If you remove that override, this becomes "<release>-intersect-message-broker-1", where "release" comes from the helm upgrade [RELEASE] value and "intersect-message-broker-1" comes from the chart name.
     amqpNodePort: &messageBroker-amqpNodePort 30010
     mqttNodePort: &messageBroker-mqttNodePort 30011
     #stompNodePort: &messageBroker-stompNodePort 30012
@@ -73,6 +73,51 @@
     apiKey: &campaignOrchestrator-apiKey "01234567890123456789012345678901"
     apiKeySecretName: &campaignOrchestrator-apiKey-secretName "campaign-orchestrator-api-key"
     apiKeySecretKey: &campaignOrchestrator-apiKey-secretKey "api-key"
+
+  registryService:
+    systemName: &registryService-systemName "intersect-registry-system" # must match "^[a-z0-9][-a-z0-9]{2,62}$"
+    nodePort: &registryService-nodePort 30040
+
+    # the registry service does NOT deploy a broker or Keycloak, it talks to the ones deployed above.
+    # YAML anchors cannot be concatenated, so the full URLs below repeat the hosts defined in this file -
+    # keep them in sync with *messageBroker-internalHost and the keycloak service.
+    brokerManagementUri: &registryService-brokerManagementUri "http://intersect-message-broker:15672/"
+    # this URL is followed by the END USER'S BROWSER during the OIDC login redirect, so it must be
+    # reachable from outside the cluster (here, the keycloak NodePort above).
+    keycloakRealmBaseUrl: &registryService-keycloakRealmBaseUrl "http://localhost:30030/realms/intersect/protocol/openid-connect"
+    keycloakClientId: &registryService-keycloakClientId "registry-service"
+
+    # the least-privileged broker user the registry service creates and hands out to SDK clients.
+    # this is NOT the broker root user above.
+    brokerClientUsername: &registryService-brokerClientUsername "lackey"
+
+    # registry service internal secret, must be at least 16 characters
+    internalSecret: &registryService-internalSecret "0123456789abcdef"
+    internalSecretSecretName: &registryService-internalSecret-secretName "intersect-shared-secrets"
+    internalSecretSecretKey: &registryService-internalSecret-secretKey "REGISTRY_SECRET_NAME"
+
+    # session cookie signing key, use a random 32 or 64 character string
+    sessionSecret: &registryService-sessionSecret "01020304050607080910111213141516"
+    sessionSecretSecretName: &registryService-sessionSecret-secretName "intersect-shared-secrets"
+    sessionSecretSecretKey: &registryService-sessionSecret-secretKey "SESSION_SECRET"
+
+    keycloakClientSecret: &registryService-keycloakClientSecret "oOwbABbnGEwRlXU3HzCgspBtWfwIiIfQ"
+    keycloakClientSecretSecretName: &registryService-keycloakClientSecret-secretName "intersect-shared-secrets"
+    keycloakClientSecretSecretKey: &registryService-keycloakClientSecret-secretKey "KEYCLOAK_CLIENT_SECRET"
+
+    brokerClientPassword: &registryService-brokerClientPassword "lackey_password"
+    brokerClientPasswordSecretName: &registryService-brokerClientPassword-secretName "intersect-shared-secrets"
+    brokerClientPasswordSecretKey: &registryService-brokerClientPassword-secretKey "BROKER_CLIENT_PASSWORD"
+
+    brokerClientApiKey: &registryService-brokerClientApiKey "registry_client_api_key"
+    brokerClientApiKeySecretName: &registryService-brokerClientApiKey-secretName "intersect-shared-secrets"
+    brokerClientApiKeySecretKey: &registryService-brokerClientApiKey-secretKey "BROKER_CLIENT_API_KEY"
+
+    postgresUsername: &registryService-postgresUsername "registry_username"
+    postgresDatabase: &registryService-postgresDatabase "registry"
+    postgresPassword: &registryService-postgresPassword "registry_password"
+    postgresPasswordSecretName: &registryService-postgresPassword-secretName "intersect-shared-secrets"
+    postgresPasswordSecretKey: &registryService-postgresPassword-secretKey "POSTGRESQL_PASSWORD"
 
 
 ###################################
@@ -109,6 +154,109 @@ campaign-orchestrator:
 
   campaignRepository:
     backend: memory
+
+registry-service:
+  # set this to "true" when you want the registry service included in the umbrella release
+  enabled: true
+
+  app:
+    systemName: *registryService-systemName
+    secretName:
+      # Option 1: switch to secret-backed credentials
+      isSecret: true
+      secretName: *registryService-internalSecret-secretName
+      secretKey: *registryService-internalSecret-secretKey
+
+      # Option 2: use a hardcoded secret for simple local installs
+      #isSecret: false
+      #hardcoded: *registryService-internalSecret
+
+    # DEVELOPMENT_API_KEY disables broker ACLs and API key checks ENTIRELY.
+    # Leave this unset on any deployment reachable outside your control.
+    #developmentApiKey:
+    #  isSecret: false
+    #  hardcoded: "dev-api-key"
+
+  auth:
+    # "rudimentary" uses hardcoded in-memory users and is for local development ONLY
+    implementation: keycloak
+    keycloak:
+      realmBaseUrl: *registryService-keycloakRealmBaseUrl
+      scope: "openid email"
+      clientId: *registryService-keycloakClientId
+      # register this client in keycloak with redirect URIs ${BASE_URL}, ${BASE_URL}/login and ${BASE_URL}/login/callback
+      clientSecret:
+        isSecret: true
+        secretName: *registryService-keycloakClientSecret-secretName
+        secretKey: *registryService-keycloakClientSecret-secretKey
+
+        #isSecret: false
+        #hardcoded: *registryService-keycloakClientSecret
+    session:
+      secret:
+        isSecret: true
+        secretName: *registryService-sessionSecret-secretName
+        secretKey: *registryService-sessionSecret-secretKey
+
+        #isSecret: false
+        #hardcoded: *registryService-sessionSecret
+
+  broker:
+    host: *messageBroker-internalHost
+    port: 5672
+    protocol: "amqp0.9.1"
+    application: rabbitmq
+    managementUri: *registryService-brokerManagementUri
+    # the broker admin user - the registry service uses this to declare the INTERSECT exchange
+    # and to create the least-privileged "client" user below
+    root:
+      username: *messageBroker-username
+      password:
+        isSecret: true
+        secretName: *messageBroker-kubeName
+        secretKey: *messageBroker-secretKey
+
+        # Option 2: use the broker password from the umbrella chart
+        #isSecret: false
+        #hardcoded: *messageBroker-password
+    client:
+      username: *registryService-brokerClientUsername
+      password:
+        isSecret: true
+        secretName: *registryService-brokerClientPassword-secretName
+        secretKey: *registryService-brokerClientPassword-secretKey
+
+        #isSecret: false
+        #hardcoded: *registryService-brokerClientPassword
+      apiKey:
+        isSecret: true
+        secretName: *registryService-brokerClientApiKey-secretName
+        secretKey: *registryService-brokerClientApiKey-secretKey
+
+        #isSecret: false
+        #hardcoded: *registryService-brokerClientApiKey
+
+  # this example will use a NodePort service
+  service:
+    type: NodePort
+    nodePort: *registryService-nodePort
+
+  # the registry service deploys its own PostgreSQL StatefulSet, this is NOT the keycloak database
+  postgresql:
+    enabled: true
+    auth:
+      username: *registryService-postgresUsername
+      database: *registryService-postgresDatabase
+      password:
+        isSecret: true
+        secretName: *registryService-postgresPassword-secretName
+        secretKey: *registryService-postgresPassword-secretKey
+
+        #isSecret: false
+        #hardcoded: *registryService-postgresPassword
+    # set this to "true" (and set a storageClass) if you want the registry database to survive a pod restart
+    persistence:
+      enabled: false
 
 #######################
 ### PROXY SUBCHARTS ###

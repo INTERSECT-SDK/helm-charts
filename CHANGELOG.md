@@ -2,6 +2,17 @@
 
 This format tries to follow the [Common Changelog](https://common-changelog.org/) format.
 
+## 0.0.9 - 2026-09-18
+
+### Added
+
+- added the registry-service sub-chart (`0.1.0`), disabled by default. It requires an OIDC realm, a reachable message broker and several credentials, so enable it with `registry-service.enabled=true` and see `examples/intersect-core/example-chart.values.yaml` for a complete configuration ([issue](https://github.com/INTERSECT-SDK/helm-charts/issues/3))
+- bumped the umbrella chart version to `0.0.9`
+
+### Fixed
+
+- fixed the `messageBroker.internalHost` anchor in the example values, which pointed at `release-intersect-message-broker-1` even though the example sets `fullnameOverride` on the broker. The rendered Service is named `intersect-message-broker`, so every subchart using that anchor (campaign-orchestrator and the proxies) was given an unresolvable broker host
+
 ## 0.0.8 - 2026-05-28
 
 ### Added
